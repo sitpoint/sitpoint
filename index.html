@@ -43,6 +43,14 @@
         .button:hover {
             background-color: #45a049;
         }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
         footer {
             text-align: center;
             padding: 1rem;
@@ -60,20 +68,54 @@
         <h2>Start a Debate</h2>
         <button class="button" onclick="joinDebate()">Join a Debate</button>
         <button class="button" onclick="hostDebate()">Host a Debate</button>
-        <h2>Top Debaters</h2>
-        <ul>
-            <li>Debater 1 - 1200 points</li>
-            <li>Debater 2 - 1100 points</li>
-            <li>Debater 3 - 1000 points</li>
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard">
+            <!-- Leaderboard will be dynamically populated -->
         </ul>
     </div>
     <footer>
         <p>&copy; 2024 Debate Platform. All rights reserved.</p>
     </footer>
+    <!-- Firebase Integration -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"></script>
     <script>
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQywFrp2FyobbP6B0L-unUDzCp80cjeOc",
+            authDomain: "sitpoint-debates.firebaseapp.com",
+            databaseURL: "https://sitpoint-debates-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sitpoint-debates",
+            storageBucket: "sitpoint-debates.firebasestorage.app",
+            messagingSenderId: "932720135578",
+            appId: "1:932720135578:web:c4e16b73fe347da6517e23"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Fetch Leaderboard Data
+        const leaderboardRef = db.ref("leaderboard");
+        leaderboardRef.on("value", (snapshot) => {
+            const leaderboard = document.getElementById("leaderboard");
+            leaderboard.innerHTML = ""; // Clear current leaderboard
+            const data = snapshot.val();
+            if (data) {
+                Object.keys(data)
+                    .sort((a, b) => data[b].points - data[a].points) // Sort by points descending
+                    .forEach((key) => {
+                        const item = document.createElement("li");
+                        item.textContent = `${data[key].name} - ${data[key].points} points`;
+                        leaderboard.appendChild(item);
+                    });
+            }
+        });
+
         function joinDebate() {
             alert("Feature coming soon!");
         }
+
         function hostDebate() {
             alert("Feature coming soon!");
         }
