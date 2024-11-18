@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View the top debaters ranked by points, wins, and win-lose ratios on SitPoint.">
+    <title>SitPoint - Leaderboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>SitPoint</h1>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="profile.html">My Profile</a></li>
+                <li><a href="leaderboard.html">Leaderboard</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>            
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header>
+            <h2>Leaderboard</h2>
+            <p>See the top-ranked debaters and their stats.</p>
+        </header>
+
+        <section class="leaderboard-section">
+            <table class="leaderboard-table-body">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Points</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Win-Lose Ratio</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-table-body">
+                    <tr>
+                        <td>1</td>
+                        <td>Alice</td>
+                        <td>250</td>
+                        <td>15</td>
+                        <td>2</td>
+                        <td>7.5</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Bob</td>
+                        <td>230</td>
+                        <td>12</td>
+                        <td>3</td>
+                        <td>4.0</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Charlie</td>
+                        <td>210</td>
+                        <td>10</td>
+                        <td>5</td>
+                        <td>2.0</td>
+                    </tr>
+                </tbody>                
+            </table>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <p>&copy; 2024 SitPoint</p>
+        <p>Contact us at <a href="mailto:info@sitpoint.com">info@sitpoint.com</a></p>
+    </footer>
+
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQywFrp2FyobbP6B0L-unUDzCp80cjeOc",
+            authDomain: "sitpoint-debates.firebaseapp.com",
+            databaseURL: "https://sitpoint-debates-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sitpoint-debates",
+            storageBucket: "sitpoint-debates.firebasestorage.app",
+            messagingSenderId: "932720135578",
+            appId: "1:932720135578:web:c4e16b73fe347da6517e23"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Fetch leaderboard data
+        const leaderboardTable = document.getElementById("leaderboard-table-body");
+        const leaderboardRef = ref(database, 'leaderboard');
+
+        get(leaderboardRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                leaderboardTable.innerHTML = ''; // Clear table
+                Object.keys(data).sort((a, b) => a - b).forEach((rank) => {
+                    const player = data[rank];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${rank}</td>
+                        <td>${player.name}</td>
+                        <td>${player.points}</td>
+                        <td>${player.wins}</td>
+                        <td>${player.losses}</td>
+                        <td>${player.winLoseRatio.toFixed(2)}</td>
+                    `;
+                    leaderboardTable.appendChild(row);
+                });
+            } else {
+                leaderboardTable.innerHTML = '<tr><td colspan="6">No data available</td></tr>';
+            }
+        }).catch((error) => {
+            console.error("Error fetching leaderboard data:", error);
+            leaderboardTable.innerHTML = '<tr><td colspan="6">Failed to load data</td></tr>';
+        });
+    </script>
+</body>
+</html>
